@@ -1,5 +1,7 @@
 @extends('layouts.base')
+@section('title')
 <title>{{ config('app.name', 'Laravel') }}</title>
+@endsection
 @section('content')
 <div class="uk-flex uk-flex-center uk-flex-middle" style="min-height: calc(100vh - 161px);">
     <div class="">

@@ -1,5 +1,7 @@
 @extends('layouts.base')
+@section('title')
 <title>{{ config('app.name', 'Laravel') }}</title>
+@endsection
 @section('content')
 @if (session('status'))
     <div class="uk-alert uk-alert-primary" uk-alert>
