@@ -5,7 +5,7 @@
 @endsection
 @section('content')
 <div class="uk-flex uk-flex-center">
-    <div class="uk-card uk-card-default uk-box-shadow-large uk-width-xlarge">
+    <div class="uk-card uk-card-default uk-box-shadow-large uk-width-xlarge uk-margin-bottom">
         <div class="uk-card-body">
             <h3 class="uk-heading-divider">{{ __('Register') }}</h3>
             <form action="{{ route('password.update') }}" method="POST" class="uk-form-horizontal">
