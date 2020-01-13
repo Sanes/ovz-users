@@ -15,6 +15,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+Auth::routes(['register'=>false]);
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::prefix('ct')->middleware(['auth'])->group(function () {
+	Route::get('/', 'ContainerController@index');
+	Route::get('index-data', 'ContainerController@indexData');
+	Route::get('{id}/show', 'ContainerController@showData');
+	Route::get('{id}/state/{action}', 'ContainerController@state');
+	Route::get('{id}', 'ContainerController@show'); 
+});

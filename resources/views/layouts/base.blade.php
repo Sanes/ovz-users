@@ -14,17 +14,30 @@
 		<div class="uk-container">
 	        <nav class="uk-navbar-container uk-navbar-transparent uk-margin" uk-navbar>
 	        	<div class="uk-navbar-left">
-	        		<div class="uk-navbar-item">
-		        		<a href="/" class="uk-logo uk-text-uppercase">{{ config('app.name', 'Laravel') }}</a>
+	        		<div class="uk-navbar-item uk-padding-remove-horizontal">
+		        		<a href="/" class="uk-logo uk-text-uppercase" style="color: #fff;"><span uk-icon="icon: server; ratio: 1.7" class="uk-margin-small-right"></span>{{ config('app.name', 'Laravel') }}</a>
 	        		</div>
 	        	</div>
+	        	@auth
+	        	<div class="uk-navbar-right">
+	        		<ul class="uk-navbar-nav">
+	        			<li><a href="/ct"><span uk-icon="icon: grid;" class="uk-margin-small-right"></span>Containers</a></li>
+	        			<li>
+            				<a href="javascript:{}" onclick="document.getElementById('logout').submit();"><span uk-icon="icon: sign-out;" class="uk-margin-small-right"></span>Logout</a>	        				
+	        			</li>
+	        		</ul>
+			        <form action="{{ route('logout') }}" method="POST" class="uk-flex uk-flex-center" id="logout">
+			            @csrf
+			        </form>	        		
+	        	</div>
+	        	@endauth
 	        </nav>				
 		</div>
 	</div>
 	<div class="uk-container" style="min-height: calc(100vh - 161px);">
 		@yield('content')
 	</div>
-	<section class="uk-section uk-section-xsmall uk-section-muted uk-text-center uk-text-small uk-text-uppercase" style="background: #f3f3f3;">
+	<section class="uk-section uk-section-xsmall uk-section-muted uk-text-center uk-text-small uk-text-uppercase" style="background: #e7e7e7;">
 		&copy; @php echo date('Y'); @endphp
 	</section>
 </body>
