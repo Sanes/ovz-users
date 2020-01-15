@@ -115,14 +115,16 @@ class ContainerController extends Controller
         // dd($request);
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
-        $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
-        stream_set_blocking($stream, true);
-        $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
         if ($request['password']) {
             $passwduser = substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(32))), 0, 12);
-            $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --userpasswd root:'.$passwduser);
+            $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname'].' --userpasswd root:'.$passwduser);
             \Session::flash('pwgen', $passwduser);            
+        } 
+        else {
+            $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
         }
+        stream_set_blocking($stream, true);
+        $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
 
         return redirect('/ct/'.$request['name']);
     }
