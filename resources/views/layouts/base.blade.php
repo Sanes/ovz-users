@@ -8,6 +8,11 @@
 
 	<script src="/js/uikit.min.js"></script>
 	<script src="/js/uikit-icons.min.js"></script>
+<style>
+	.uk-navbar-item, .uk-navbar-nav > li > a {padding: 0 10px;}
+	.uk-icon-button {background: #e7e7e7;}
+	.uk-icon-button:hover {background: #1e87f0; color: #fff;}
+</style>	
 </head>
 <body>
 	<div class="uk-background-primary uk-light uk-margin-bottom">
@@ -18,8 +23,13 @@
 		        		<a href="/" class="uk-logo uk-text-uppercase" style="color: #fff;"><span uk-icon="icon: server; ratio: 1.7" class="uk-margin-small-right"></span>{{ config('app.name', 'Laravel') }}</a>
 	        		</div>
 	        	</div>
-	        	@auth
 	        	<div class="uk-navbar-right">
+	        	@guest
+	        		<ul class="uk-navbar-nav">
+	        			<li><a href="/login"><span uk-icon="icon: user;" class="uk-margin-small-right"></span>Login</a></li>
+	        		</ul>
+	        	@endguest
+	        	@auth
 	        		<ul class="uk-navbar-nav">
 	        			<li><a href="/ct"><span uk-icon="icon: grid;" class="uk-margin-small-right"></span>Containers</a></li>
 	        			<li>
@@ -29,8 +39,8 @@
 			        <form action="{{ route('logout') }}" method="POST" class="uk-flex uk-flex-center" id="logout">
 			            @csrf
 			        </form>	        		
-	        	</div>
 	        	@endauth
+	        	</div>
 	        </nav>				
 		</div>
 	</div>

@@ -1,7 +1,18 @@
 <div class="uk-grid-small uk-text-small" uk-grid>   
     <div class="uk-width-1-3@m">
       <div class="uk-box-shadow-large uk-padding-small uk-margin-medium-bottom">
-      <h4 class="uk-heading-divider">Нагрузка</h4>                
+        @if( $stat['disk']['usedPercent'] == null )
+        <h4 class="uk-heading-divider">Нагрузка</h4>         
+          <div class="uk-flex uk-flex-middle uk-flex-center uk-text-center uk-height-small">
+            <div>
+                <span uk-icon="warning"></span> <br>
+                Статистика недоступна
+                @if($data['State'] == 'running') <br><a href="#agent" uk-toggle>Установить агент</a>
+                @endif
+            </div>
+          </div>
+        @else
+        <h4 class="uk-heading-divider">Нагрузка</h4>                
         <div class="uk-flex uk-flex-between uk-width-expand">
             <div>CPU</div>
             <div>{{ round($stat['cpu'], 0) }} %</div>
@@ -17,22 +28,21 @@
             <div>{{ round($stat['disk']['usedPercent'], 0) }} %</div>
         </div>
         <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['disk']['usedPercent'] }}" max="100" style="background: #e8e8e8;"></progress>
-        @if($data['State'] == 'running')
-        <div class="uk-grid-small" uk-grid>
-            <div class="uk-width-expand" uk-leader>Uptime</div>
-            <div uk-tooltip="{{ $data['Uptime'] }}">{{ gmdate("z\d H\h i\m", $data['Uptime']) }}</div>
-        </div> 
-        @endif        
+        <div class="uk-flex uk-flex-between uk-width-expand">
+            <div>Uptime</div>
+            <div>{{ gmdate("z\d H\h i\m", $data['Uptime']) }}</div>
+        </div>
+        @endif   
       </div> 
       <div class="">
-        <a href="#" class="uk-icon-button uk-margin-small-right" uk-icon="settings" uk-tooltip="Редактировать"></a>
+        <a href="/ct/{{ $data['Name'] }}/edit" class="uk-icon-button uk-margin-small-right" uk-icon="settings" uk-tooltip="Настроить"></a>
         @if($data['State'] == 'running')
-        <a href="/ct/{{ $data['Name'] }}/state/restart" class="uk-icon-button uk-margin-small-right" uk-icon="refresh" uk-tooltip="Перезапустить"></a>
-        <a href="/ct/{{ $data['Name'] }}/state/stop" class="uk-icon-button uk-margin-small-right" uk-icon="close" uk-tooltip="Остановить"></a>
+        <a href="#restart" class="uk-icon-button uk-margin-small-right" uk-icon="refresh" uk-tooltip="Перезапустить" uk-toggle></a>
+        <a href="#stop" class="uk-icon-button uk-margin-small-right" uk-icon="close" uk-tooltip="Остановить" uk-toggle></a>
         @else
-        <a href="/ct/{{ $data['Name'] }}/state/start" class="uk-icon-button" uk-icon="play" uk-tooltip="Запустить"></a>      
+        <a href="/ct/{{ $data['Name'] }}/state/start" class="uk-icon-button uk-margin-small-right" uk-icon="play" uk-tooltip="Запустить"></a>      
         @endif
-        <a href="#" class="uk-icon-button uk-margin-small-right" uk-icon="copy" uk-tooltip="Шаблоны"></a>
+        <a href="#" class="uk-icon-button uk-margin-small-right" uk-icon="cog" uk-tooltip="Форматировать"></a>
       </div>     
     </div>
     <div class="uk-width-2-3@m uk-margin-small-bottom">
@@ -59,11 +69,11 @@
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>Hostname</div>
                         <div>{{ $data['Hostname'] }}</div>
-                    </div>                        
+                    </div>                             
                     <div class="uk-grid-small" uk-grid>
-                        <div class="uk-width-expand" uk-leader>Автозапуск</div>
-                        <div class="uk-text-capitalize uk-text-success">Включен</div>  
-                    </div>                       
+                        <div class="uk-width-expand" uk-leader>DNS</div>
+                        <div>{{ $data['DNS Servers'] }}</div>
+                    </div>                      
                 </div>
                 <div class="uk-width-1-2@m">                         
                     <div class="uk-grid-small" uk-grid>
@@ -77,11 +87,7 @@
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>Диск</div>
                         <div>{{ round(str_replace('Mb', '', $data['Hardware']['hdd0']['size'])/1024, 2) }} Gb</div>
-                    </div>                             
-                    <div class="uk-grid-small" uk-grid>
-                        <div class="uk-width-expand" uk-leader>DNS</div>
-                        <div>{{ $data['DNS Servers'] }}</div>
-                    </div>                           
+                    </div>                          
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>IPs</div>
                         <div class="uk-text-right">
@@ -96,4 +102,6 @@
         </div>
     </div>
 </div>
+
+
 

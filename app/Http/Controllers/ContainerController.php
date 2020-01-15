@@ -15,6 +15,7 @@ class ContainerController extends Controller
     {
 
         return view('index');
+        
     }
 
     public function indexData()
@@ -91,7 +92,15 @@ class ContainerController extends Controller
      */
     public function edit($id)
     {
-        //
+        $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
+        ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
+        $stream = ssh2_exec($connection, 'prlctl list -i '.$id.' -j');
+        stream_set_blocking($stream, true);
+        $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
+        $result = stream_get_contents($stream_out);  
+        $responseData = json_decode($result, true);
+
+        return view('edit', ['data' => $responseData[0]]);
     }
 
     /**
@@ -101,9 +110,21 @@ class ContainerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        // dd($request);
+        $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
+        ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
+        $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
+        stream_set_blocking($stream, true);
+        $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
+        if ($request['password']) {
+            $passwduser = substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(32))), 0, 12);
+            $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --userpasswd root:'.$passwduser);
+            \Session::flash('pwgen', $passwduser);            
+        }
+
+        return redirect('/ct/'.$request['name']);
     }
 
     /**
@@ -121,7 +142,17 @@ class ContainerController extends Controller
     {
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
-        $stream = ssh2_exec($connection, 'prlctl reset-uptime '.$id.' & prlctl set '.$id.' & prlctl '.$action.' '.$id.' &');
+        $stream = ssh2_exec($connection, 'prlctl reset-uptime '.$id.' & prlctl '.$action.' '.$id.' &');
+        if ($action == "start") {
+            $stream = ssh2_exec($connection, 'prlctl set '.$id.' --autostart on');
+        }
+        elseif ($action == "stop") {
+            $stream = ssh2_exec($connection, 'prlctl set '.$id.' --autostart off');
+        }
+        else {
+            $stream = ssh2_exec($connection, 'prlctl set '.$id);
+        }
+
         return redirect('/ct/'.$id);
     }
 }
