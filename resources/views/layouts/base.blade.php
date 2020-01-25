@@ -31,7 +31,11 @@
 	        	@endguest
 	        	@auth
 	        		<ul class="uk-navbar-nav">
+	        			@if(Request::is('ct') || Request::is('ct/*'))
+	        			<li class="uk-active"><a href="/ct"><span uk-icon="icon: grid;" class="uk-margin-small-right"></span>Containers</a></li>
+	        			@else
 	        			<li><a href="/ct"><span uk-icon="icon: grid;" class="uk-margin-small-right"></span>Containers</a></li>
+						@endif 
 	        			<li>
             				<a href="javascript:{}" onclick="document.getElementById('logout').submit();"><span uk-icon="icon: sign-out;" class="uk-margin-small-right"></span>Logout</a>	        				
 	        			</li>

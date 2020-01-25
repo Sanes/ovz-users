@@ -43,6 +43,7 @@
         <a href="/ct/{{ $data['Name'] }}/state/start" class="uk-icon-button uk-margin-small-right" uk-icon="play" uk-tooltip="Запустить"></a>      
         @endif
         <a href="#" class="uk-icon-button uk-margin-small-right" uk-icon="cog" uk-tooltip="Форматировать"></a>
+        <a href="/ct" class="uk-icon-button uk-margin-small-right" uk-icon="grid" uk-tooltip="Контейнеры"></a>
       </div>     
     </div>
     <div class="uk-width-2-3@m uk-margin-small-bottom">
@@ -64,7 +65,7 @@
                     </div> 
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>Имя</div>
-                        <div uk-tooltip="{{ $data['Description'] }}">{{ $data['Name'] }}</div>
+                        <div>{{ $data['Name'] }}</div>
                     </div>                           
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>Hostname</div>
@@ -73,7 +74,10 @@
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>DNS</div>
                         <div>{{ $data['DNS Servers'] }}</div>
-                    </div>                      
+                    </div>    
+                    @if(isset($data['Description']))
+                    <p>{{ $data['Description'] }}</p>
+                    @endif
                 </div>
                 <div class="uk-width-1-2@m">                         
                     <div class="uk-grid-small" uk-grid>
