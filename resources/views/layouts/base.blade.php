@@ -12,6 +12,8 @@
 	.uk-navbar-item, .uk-navbar-nav > li > a {padding: 0 10px;}
 	.uk-icon-button {background: #e7e7e7;}
 	.uk-icon-button:hover {background: #1e87f0; color: #fff;}
+	tr:nth-child(even)  {background: #f8f8f8;}
+	thead  {background: #f5f5f5;}
 </style>	
 </head>
 <body>
@@ -31,6 +33,7 @@
 	        	@endguest
 	        	@auth
 	        		<ul class="uk-navbar-nav">
+	        			<li class=""><a href="#"><span uk-icon="icon: cart;" class="uk-margin-small-right"></span>Billing</a></li>
 	        			@if(Request::is('ct') || Request::is('ct/*'))
 	        			<li class="uk-active"><a href="/ct"><span uk-icon="icon: grid;" class="uk-margin-small-right"></span>Containers</a></li>
 	        			@else

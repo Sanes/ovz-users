@@ -1,4 +1,4 @@
-<table class="uk-table uk-table-small uk-table-hover uk-table-striped uk-text-small uk-table-middle">
+<table class="uk-table uk-table-small uk-table-hover uk-text-small uk-table-middle">
   <thead>
     <tr>
       <th class="uk-table-shrink">Name</th>
@@ -9,7 +9,6 @@
     </tr>
   </thead>
   <tbody>
-  </tbody>
 @foreach ($data as $item)
     <tr>
       <td class="uk-table-link uk-link-reset"><a href="/ct/">{{$item['name']}}</a></td>
@@ -23,5 +22,6 @@
       @endif
     </tr>
 @endforeach
+  </tbody>
 </table>
 

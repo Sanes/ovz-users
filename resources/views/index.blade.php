@@ -21,6 +21,6 @@ axios.get('https://ovz.vcloud.net.ru/ct/index-data')
     document.getElementById("data").innerHTML  = response.data;
   })
 
-}, 3000);  
+}, 5000);  
 </script>	
 @endsection

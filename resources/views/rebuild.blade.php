@@ -3,36 +3,54 @@
 <title>{{ config('app.name', 'Laravel') }}</title>
 @endsection
 @section('content')
-<h2 class="">Edit Container</h2>
-<form action="/ct/update" method="post" class="uk-form-horizontal" id="update">
+<h2 class="">Rebuild Container</h2>
+<form action="/ct/" method="post" class="uk-form" id="update">
     @csrf
     <input type="text" name="name" value="{{ $data['Name'] }}" hidden="">
-	<div class="uk-margin">
-		<label class="uk-form-label" for="name">Name</label>
-		<div class="uk-form-controls">
-		    <input class="uk-input uk-form-width-large" id="name" type="text" placeholder="" value="{{ $data['Name'] }}" disabled="">
-		</div>	
-	</div>
-	<div class="uk-margin">
-		<label class="uk-form-label" for="hostname">Hostname</label>
-		<div class="uk-form-controls">
-		    <input class="uk-input uk-form-width-large" id="hostname" type="text" placeholder="" value="{{ $data['Hostname'] }}" name="hostname">
-		</div>	
-	</div>
-    <div class="uk-margin">
-    	<label class="uk-form-label" for="description">Description</label>
 
-    	<div class="uk-form-controls">
-        	<textarea id="description" class="uk-textarea uk-form-width-large" rows="2" placeholder="Textarea" name="description">{{ $data['Description'] }}</textarea>
-    	</div>
-    </div>	
-    <div class="uk-margin">
-        <div class="uk-form-controls"><label for="userpasswd"><input class="uk-checkbox uk-margin-small-right" id="userpasswd" name="password" type="checkbox">Сбросить пароль</label></div>
+    <div class="uk-child-width-1-3@m" uk-grid>
+        <div>
+            <h4 class="uk-heading-divider uk-flex uk-flex-middle"><img src="https://ovz.vcloud.net.ru/img/centos7.png" alt="" class="uk-margin-small-right">Centos</h4>
+            <div class="uk-margin">
+                <label><input class="uk-radio" type="radio" name="radio2" checked> Centos 7</label>
+            </div>
+
+            <div class="uk-margin">
+                <label><input class="uk-radio" type="radio" name="radio2"> Centos 8</label>
+            </div>        
+        </div>
+        <div>
+            <h4 class="uk-heading-divider uk-flex uk-flex-middle"><img src="https://ovz.vcloud.net.ru/img/debian.png" alt="" class="uk-margin-small-right">Debian</h4>
+            <div class="uk-margin">
+                <label><input class="uk-radio" type="radio" name="radio2"> Debian 9</label>
+            </div>  
+            <div class="uk-margin">
+                <label><input class="uk-radio" type="radio" name="radio2"> Debian 10</label>
+            </div>  
+        </div>
+        <div>
+            <h4 class="uk-heading-divider uk-flex uk-flex-middle"><img src="https://ovz.vcloud.net.ru/img/ubuntu.png" alt="" class="uk-margin-small-right">Ubuntu</h4>
+            <div class="uk-margin">
+                <label><input class="uk-radio" type="radio" name="radio2"> Ubuntu 18.04</label>
+            </div>      
+            <div class="uk-margin">
+                <label><input class="uk-radio" type="radio" name="radio2" disabled=""> Ubuntu 20.04</label>
+            </div>      
+        </div>
     </div>
+
+    @if($data['State'] == 'running')
+    <div class="uk-margin">
+        <a class="uk-alert-close"></a>
+        <div class="uk-alert uk-alert-primary">Контейнер должен быть остановлен!</div>
+    </div>
+    <a href="/ct/{{ $data['Name'] }}" class="uk-button uk-button-default uk-margin-small-bottom">Отмена</a>
+    @else
     <div class="uk-margin">
     	<div class="uk-form-controls">
-    		<a href="javascript:{}" onclick="document.getElementById('update').submit();" class="uk-button uk-button-primary uk-margin-small-right uk-margin-small-bottom">Сохранить</a> <a href="/ct/{{ $data['Name'] }}" class="uk-button uk-button-default uk-margin-small-bottom">Отмена</a>
+    		<a href="javascript:{}" onclick="document.getElementById('update').submit();" class="uk-button uk-button-primary uk-margin-small-right uk-margin-small-bottom">Форматировать</a> <a href="/ct/{{ $data['Name'] }}" class="uk-button uk-button-default uk-margin-small-bottom">Отмена</a>
     	</div>
     </div>
+    @endif
 </form>
 @endsection

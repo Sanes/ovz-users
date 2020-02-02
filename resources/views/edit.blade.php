@@ -16,7 +16,7 @@
 	<div class="uk-margin">
 		<label class="uk-form-label" for="hostname">Hostname</label>
 		<div class="uk-form-controls">
-		    <input class="uk-input uk-form-width-large" id="hostname" type="text" placeholder="" value="{{ $data['Hostname'] }}" name="hostname">
+		    <input class="uk-input uk-form-width-large" id="hostname" type="text" placeholder="" value="{{ $data['Hostname'] ?? '' }}" name="hostname">
 		</div>	
 	</div>
     <div class="uk-margin">

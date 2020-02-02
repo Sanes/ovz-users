@@ -34,6 +34,11 @@
         </div>
         @endif   
       </div> 
+        @if(isset($data['Description']))
+        <div class=" uk-hidden@m">
+            <p>{{ $data['Description'] }}</p>
+        </div>
+        @endif 
       <div class="">
         <a href="/ct/{{ $data['Name'] }}/edit" class="uk-icon-button uk-margin-small-right" uk-icon="settings" uk-tooltip="Настроить"></a>
         @if($data['State'] == 'running')
@@ -42,8 +47,8 @@
         @else
         <a href="/ct/{{ $data['Name'] }}/state/start" class="uk-icon-button uk-margin-small-right" uk-icon="play" uk-tooltip="Запустить"></a>      
         @endif
-        <a href="#" class="uk-icon-button uk-margin-small-right" uk-icon="cog" uk-tooltip="Форматировать"></a>
-        <a href="/ct" class="uk-icon-button uk-margin-small-right" uk-icon="grid" uk-tooltip="Контейнеры"></a>
+        <a href="/ct/{{ $data['Name'] }}/rebuild" class="uk-icon-button uk-margin-small-right" uk-icon="bolt" uk-tooltip="Форматировать"></a>
+        <a href="/ct" class="uk-icon-button uk-margin-small-right" uk-icon="reply" uk-tooltip="Контейнеры"></a>
       </div>     
     </div>
     <div class="uk-width-2-3@m uk-margin-small-bottom">
@@ -69,15 +74,12 @@
                     </div>                           
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>Hostname</div>
-                        <div>{{ $data['Hostname'] }}</div>
+                        <div>{{ $data['Hostname'] ?? ""}}</div>
                     </div>                             
                     <div class="uk-grid-small" uk-grid>
                         <div class="uk-width-expand" uk-leader>DNS</div>
-                        <div>{{ $data['DNS Servers'] }}</div>
-                    </div>    
-                    @if(isset($data['Description']))
-                    <p>{{ $data['Description'] }}</p>
-                    @endif
+                        <div>{{ $data['DNS Servers'] ?? ""}}</div>
+                    </div>
                 </div>
                 <div class="uk-width-1-2@m">                         
                     <div class="uk-grid-small" uk-grid>
@@ -101,7 +103,12 @@
                           @endif                          
                         </div>
                     </div>                         
-                </div>             
+                </div>  
+                @if(isset($data['Description']))
+                <div class="uk-width-1-2@m uk-visible@m">
+                	<p>{{ $data['Description'] }}</p>
+                </div>
+                @endif           
             </div>          
         </div>
     </div>

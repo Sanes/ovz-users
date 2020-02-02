@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Container; 
+use App\User; 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class ContainerController extends Controller
 {
@@ -20,14 +22,27 @@ class ContainerController extends Controller
 
     public function indexData()
     {
+
+        $user = auth()->user()->id;
+        $db = User::find($user)->containers->toArray();
+        $collection = collect($db);
+        $pluck = $collection->pluck('name');
+
+
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
-        $stream = ssh2_exec($connection, 'prlctl list -a -o status,name,uuid,hostname,ip_configured,type,description -j');
+        $stream = ssh2_exec($connection, 'prlctl list -a -o status,name,hostname,ip_configured,description -j');
         stream_set_blocking($stream, true);
         $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
         $result = stream_get_contents($stream_out);  
         $response = json_decode($result, true);
-        return view('index-data', ['data' => $response]);
+
+
+        $col = collect($response);
+        $filtered = $col->whereIn('name', $pluck);
+        $data = $filtered->values()->all();
+
+        return view('index-data', ['data' => $data]);
     }
 
     /**
@@ -35,9 +50,33 @@ class ContainerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $model = User::where('email', $request['email']);
+        if ($model->count()) {
+        // $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
+        // ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
+        // $stream = ssh2_exec($connection, 'prlctl list -a -o status,name,hostname,ip_configured,description -j');
+        // stream_set_blocking($stream, true);
+        // $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
+        // $result = stream_get_contents($stream_out);          
+        // $json = json_decode($result);
+        $id = Container::create()->id;
+        $ctName = ['name' => "ct".$id, 'new'=> false];
+        // $name = json_decode($ctName);
+        return response($ctName, 200, ['Content-Type' => 'application/json;charset=UTF-8'])->header('Access-Control-Allow-Origin', '*');
+        } else {
+        $user = new User();
+        $user->password = Hash::make('Pass123@@@');
+        $user->email = $request['email'];
+        $user->name = 'My Name';
+        $user->save();
+
+        $id = Container::create()->id;
+        $ctName = ['name' => "ct".$id, 'new'=> true];
+
+        return response($ctName, 200)->header('Access-Control-Allow-Origin', '*');
+        }
     }
 
     /**
@@ -63,6 +102,14 @@ class ContainerController extends Controller
     }
     public function showData($id)
     {
+
+        $user = auth()->user()->id;
+        $db = Container::where('name', $id)->firstOrFail();
+        if ($db->user_id != auth()->user()->id) {
+           echo "404";
+           exit();
+        }
+        else {
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
         $stream = ssh2_exec($connection, 'prlctl list -i '.$id.' -j');
@@ -72,7 +119,7 @@ class ContainerController extends Controller
         $responseData = json_decode($result, true);
 
 
-        $streamStat = ssh2_exec($connection, 'prlctl exec '.$id.' /root/psutil');
+        $streamStat = ssh2_exec($connection, 'prlctl exec '.$id.' /usr/local/bin/psutil');
         stream_set_blocking($streamStat, true);
         $streamStat_out = ssh2_fetch_stream($streamStat, SSH2_STREAM_STDIO);
         $resultStat = stream_get_contents($streamStat_out);
@@ -81,7 +128,10 @@ class ContainerController extends Controller
 
 
         return view('show-data', ['data' => $responseData[0], 'stat' => $responseStat]);
-         // dd($responseStat);
+
+        }
+
+
     }
 
     /**
@@ -92,6 +142,13 @@ class ContainerController extends Controller
      */
     public function edit($id)
     {
+
+        $user = auth()->user()->id;
+        $db = Container::where('name', $id)->firstOrFail();
+        if ($db->user_id != auth()->user()->id) {
+            return redirect('/ct');
+        }
+                
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
         $stream = ssh2_exec($connection, 'prlctl list -i '.$id.' -j');
@@ -101,6 +158,7 @@ class ContainerController extends Controller
         $responseData = json_decode($result, true);
 
         return view('edit', ['data' => $responseData[0]]);
+        
     }
 
     /**
@@ -143,6 +201,12 @@ class ContainerController extends Controller
 
     public function state($id, $action)
     {
+
+        $user = auth()->user()->id;
+        $db = Container::where('name', $id)->firstOrFail();
+        if ($db->user_id != auth()->user()->id) {
+            return redirect('/ct');
+        }        
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
         $stream = ssh2_exec($connection, 'prlctl reset-uptime '.$id.' & prlctl '.$action.' '.$id.' &');
@@ -157,5 +221,32 @@ class ContainerController extends Controller
         }
 
         return redirect('/ct/'.$id);
+    }
+
+
+    public function rebuild($id)
+    {
+
+        $user = auth()->user()->id;
+        $db = Container::where('name', $id)->firstOrFail();
+        if ($db->user_id != auth()->user()->id) {
+            return redirect('/ct');
+        }
+                
+        $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
+        ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
+        $stream = ssh2_exec($connection, 'prlctl list -i '.$id.' -j');
+        stream_set_blocking($stream, true);
+        $stream_out = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
+        $result = stream_get_contents($stream_out);  
+        $responseData = json_decode($result, true);
+
+        return view('rebuild', ['data' => $responseData[0]]);
+        
+    }
+    public function all()
+    {
+        $db = Container::all();
+        return response($db, 200)->header('Access-Control-Allow-Origin', '*');
     }
 }
