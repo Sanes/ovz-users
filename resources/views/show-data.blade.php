@@ -22,7 +22,7 @@
             <div>RAM</div>
             <div>{{ round($stat['memory']['usedPercent'], 0) }} %</div>
         </div>
-        <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['memory']['usedPercent'] }}" max="100" style="background: #e8e8e8;"></progress>
+        <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['memory']['usedPercent'] }}" max="100" style="background: #e8e8e8; "></progress>
         <div class="uk-flex uk-flex-between uk-width-expand">
             <div>Диск</div>
             <div>{{ round($stat['disk']['usedPercent'], 0) }} %</div>

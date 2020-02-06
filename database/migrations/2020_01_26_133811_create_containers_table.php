@@ -15,9 +15,9 @@ class CreateContainersTable extends Migration
     {
         Schema::create('containers', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name', 16)->unique();
+            $table->string('name', 16)->unique()->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users');        
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');        
             $table->boolean('locked')->default(1);
             $table->boolean('suspended')->default(0);    
             $table->timestamps();

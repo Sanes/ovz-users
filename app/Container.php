@@ -10,4 +10,9 @@ class Container extends Model
   {
     return $this->belongsTo(User::class);
   }
+
+    public function containers()
+    {
+    return $this->hasMany(Ip4address::class);
+    }
 }
