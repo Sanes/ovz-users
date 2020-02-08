@@ -17,7 +17,7 @@ class ContainerCreate extends Command
      *
      * @var string
      */
-    protected $signature = 'container:create {--email=}{--ostemplate=}{--cpus=}{--memsize=}{--ipadd=}{--size=} ';
+    protected $signature = 'container:create {--email=}{--ostemplate=}{--cpus=}{--memsize=}{--ipadd=}{--size=}{--hostname=} ';
 
     /**
      * The console command description.
@@ -61,13 +61,13 @@ class ContainerCreate extends Command
                 ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
 
                 $stream = ssh2_exec($connection, 
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G; prlctl start ct'.$id
+                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G; prlctl start ct'.$id
                     );
 
                 stream_set_blocking($stream, true);
                 $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
                 // $result_err = stream_get_contents($stream_err);
-                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address);
+                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).' --hostname='.$this->option('hostname');
 
             } 
 
@@ -89,13 +89,13 @@ class ContainerCreate extends Command
                 ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
                 $stream = ssh2_exec($connection, 
                     
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G; prlctl start ct'.$id
+                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G; prlctl start ct'.$id
                     );
 
                 stream_set_blocking($stream, true);
                 $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDERR);
                 $result_err = stream_get_contents($stream_err);
-                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address);
+                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).' --hostname='.$this->option('hostname');
 
                 }
             } 

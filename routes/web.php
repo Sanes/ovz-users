@@ -17,10 +17,10 @@ Route::get('/', function () {
 
 Auth::routes(['register'=>true]);
 
-Route::get('/home', 'HomeController@index')->name('home');
+
 
 	Route::get('ct/all', 'ContainerController@all');
-Route::prefix('ct')->middleware(['auth'])->group(function () {
+Route::prefix('ct')->middleware(['auth', 'throttle:60,1'])->group(function () {
 	Route::get('/', 'ContainerController@index');
 	Route::get('index-data', 'ContainerController@indexData');
 	Route::post('update', 'ContainerController@update');
