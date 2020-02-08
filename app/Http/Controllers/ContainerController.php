@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use App\Container; 
 use App\User; 
-use App\Ip4address; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -53,45 +52,6 @@ class ContainerController extends Controller
      */
     public function create(Request $request)
     {
-        $getAddress = Ip4address::where('container_id', null);
-
-        if ($getAddress->count()) {
-            $getAddress = Ip4address::where('container_id', null)->first();
-            $getUser = User::where('email', $request['email']);
-
-            if ($getUser->count()) {
-                $id = Container::create()->id;
-                $userInfo = User::where('email', $request['email'])->first();
-                Container::where('id', $id)->update(['name' => 'ct'.$id, 'user_id' => $userInfo->id, 'locked' => false]);
-                $res = ['name' => "ct".$id, 'ip' => $getAddress->address, 'new'=> false];
-                Ip4address::where('id', $getAddress->id)->update(['container_id' => $id]);
-                shell_exec('/opt/php72/bin/php /var/www/sanes/data/www/ovz.vcloud.net.ru/artisan container:create --name=ct'.$id.
-                    ' --ostemplate=ubuntu-18.04 --cpus=2 --ipadd='.$getAddress->address.'> /dev/null &');
-                return response($res, 200, ['Content-Type' => 'application/json;charset=UTF-8'])->header('Access-Control-Allow-Origin', '*');
-            } 
-
-                else {
-                $user = new User();
-                $user->password = Hash::make('Pass123@@@');
-                $user->email = $request['email'];
-                $user->name = $request['email'];
-                $user->save();
-
-                $userInfo = User::where('email', $request['email'])->first();
-                $id = Container::create()->id;
-                Container::where('id', $id)->update(['name' => 'ct'.$id, 'user_id' => $userInfo->id, 'locked' => false]);
-                $res = ['name' => "ct".$id, 'ip' => $getAddress->address, 'new'=> true];
-                Ip4address::where('id', $getAddress->id)->update(['container_id' => $id]);
-
-                shell_exec('/opt/php72/bin/php /var/www/sanes/data/www/ovz.vcloud.net.ru/artisan container:create --name=ct'.$id.
-                    ' --ostemplate=ubuntu-18.04 --cpus=2 --ipadd='.$getAddress->address.' > /dev/null &');
-                return response($res, 200)->header('Access-Control-Allow-Origin', '*');
-                }
-            } 
-
-            else {
-                return response('', 404)->header('Access-Control-Allow-Origin', '*');
-            }
 
     }
 
@@ -164,7 +124,7 @@ class ContainerController extends Controller
         if ($db->user_id != auth()->user()->id) {
             return redirect('/ct');
         }
-                
+               
         $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
         $stream = ssh2_exec($connection, 'prlctl list -i '.$id.' -j');
@@ -259,10 +219,5 @@ class ContainerController extends Controller
 
         return view('rebuild', ['data' => $responseData[0]]);
         
-    }
-    public function all()
-    {
-        $db = Container::all();
-        return response($db, 200)->header('Access-Control-Allow-Origin', '*');
     }
 }

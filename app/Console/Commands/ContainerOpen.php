@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 
 
-class ContainerCreate extends Command
+class ContainerOpen extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'container:create {--email=}{--ostemplate=}{--cpus=}{--memsize=}{--ipadd=}{--size=}{--hostname=} ';
+    protected $signature = 'container:open {--email=}{--ostemplate=}{--cpus=}{--memsize=}{--ipadd=}{--size=}{--hostname=} ';
 
     /**
      * The console command description.
@@ -61,7 +61,7 @@ class ContainerCreate extends Command
                 ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
 
                 $stream = ssh2_exec($connection, 
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G; prlctl start ct'.$id
+                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8"; prlctl start ct'.$id
                     );
 
                 stream_set_blocking($stream, true);
@@ -89,7 +89,7 @@ class ContainerCreate extends Command
                 ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
                 $stream = ssh2_exec($connection, 
                     
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G; prlctl start ct'.$id
+                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8"; prlctl start ct'.$id
                     );
 
                 stream_set_blocking($stream, true);
