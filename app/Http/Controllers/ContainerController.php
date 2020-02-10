@@ -95,12 +95,12 @@ class ContainerController extends Controller
         $responseData = json_decode($result, true);
 
 
-        $streamStat = ssh2_exec($connection, 'prlctl exec '.$id.' /usr/local/bin/psutil');
+        $streamStat = ssh2_exec($connection, 'prlctl exec '.$id.' /usr/local/bin/monit');
         stream_set_blocking($streamStat, true);
         $streamStat_out = ssh2_fetch_stream($streamStat, SSH2_STREAM_STDIO);
         $resultStat = stream_get_contents($streamStat_out);
         $responseStat = json_decode($resultStat, true);
-
+// dd($responseStat);
 
 
         return view('show-data', ['data' => $responseData[0], 'stat' => $responseStat]);
@@ -151,8 +151,8 @@ class ContainerController extends Controller
         ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
         if ($request['password']) {
             $passwduser = substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(32))), 0, 12);
-            $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
-            // $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname'].' --userpasswd root:'.$passwduser);
+            // $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
+            $stream = ssh2_exec($connection, 'prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname'].' --userpasswd root:'.$passwduser);
             \Session::flash('pwgen', $passwduser);            
         } 
         else {
@@ -204,7 +204,7 @@ class ContainerController extends Controller
     {
 
         $user = auth()->user()->id;
-        $db = Container::where('name', $id)->firstOrFail();
+        $db = Container::where('name', $id)->first();
         if ($db->user_id != auth()->user()->id) {
             return redirect('/ct');
         }

@@ -1,7 +1,7 @@
 <div class="uk-grid-small uk-text-small" uk-grid>   
     <div class="uk-width-1-3@m">
       <div class="uk-box-shadow-large uk-padding-small uk-margin-medium-bottom">
-        @if( $stat['disk']['usedPercent'] == null )
+        @if( $stat['disk'] == null )
         <h4 class="uk-heading-divider">Нагрузка</h4>         
           <div class="uk-flex uk-flex-middle uk-flex-center uk-text-center uk-height-small">
             <div>
@@ -20,14 +20,14 @@
         <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['cpu'] }}" max="100" style="background: #e8e8e8;"></progress>
         <div class="uk-flex uk-flex-between uk-width-expand">
             <div>RAM</div>
-            <div>{{ round($stat['memory']['usedPercent'], 0) }} %</div>
+            <div>{{ round($stat['memory'], 0) }} %</div>
         </div>
-        <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['memory']['usedPercent'] }}" max="100" style="background: #e8e8e8; "></progress>
+        <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['memory'] }}" max="100" style="background: #e8e8e8; "></progress>
         <div class="uk-flex uk-flex-between uk-width-expand">
             <div>Диск</div>
-            <div>{{ round($stat['disk']['usedPercent'], 0) }} %</div>
+            <div>{{ round($stat['disk'], 0) }} %</div>
         </div>
-        <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['disk']['usedPercent'] }}" max="100" style="background: #e8e8e8;"></progress>
+        <progress class="uk-progress uk-margin-remove-top" value="{{ $stat['disk'] }}" max="100" style="background: #e8e8e8;"></progress>
         <div class="uk-flex uk-flex-between uk-width-expand">
             <div>Uptime</div>
             <div>{{ gmdate("z\d H\h i\m", $data['Uptime']) }}</div>

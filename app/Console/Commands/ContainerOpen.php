@@ -66,8 +66,8 @@ class ContainerOpen extends Command
 
                 stream_set_blocking($stream, true);
                 $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
-                // $result_err = stream_get_contents($stream_err);
-                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).' --hostname='.$this->option('hostname');
+                $result_err = stream_get_contents($stream_err);
+                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).'/32 --hostname='.$this->option('hostname');
 
             } 
 
@@ -95,7 +95,7 @@ class ContainerOpen extends Command
                 stream_set_blocking($stream, true);
                 $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDERR);
                 $result_err = stream_get_contents($stream_err);
-                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).' --hostname='.$this->option('hostname');
+                $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).'/32 --hostname='.$this->option('hostname');
 
                 }
             } 

@@ -33,7 +33,7 @@
 	        	@endguest
 	        	@auth
 	        		<ul class="uk-navbar-nav">
-	        			<li class=""><a href="#"><span uk-icon="icon: cart;" class="uk-margin-small-right"></span>Billing</a></li>
+	        			<li class=""><a href="https://cp.cloud-controller.ru" target="_blank"><span uk-icon="icon: cart;" class="uk-margin-small-right"></span>Billing</a></li>
 	        			@if(Request::is('ct') || Request::is('ct/*'))
 	        			<li class="uk-active"><a href="/ct"><span uk-icon="icon: grid;" class="uk-margin-small-right"></span>Containers</a></li>
 	        			@else

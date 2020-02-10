@@ -54,6 +54,6 @@ axios.get('https://ovz.vcloud.net.ru/ct/{{ $id }}/show')
     document.getElementById("data").innerHTML  = response.data;
   })
 
-}, 4000);  
+}, 2500);  
 </script>   
 @endsection
