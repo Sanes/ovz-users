@@ -61,7 +61,7 @@ class ContainerOpen extends Command
                 ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
 
                 $stream = ssh2_exec($connection, 
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8"; prlctl start ct'.$id
+                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8" --description '.$this->option('hostname').'; prlctl start ct'.$id
                     );
 
                 stream_set_blocking($stream, true);

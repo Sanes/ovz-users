@@ -38,15 +38,14 @@ class ContainerClose extends Command
     public function handle()
     {
 
-        $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
-        ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
+        // $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
+        // ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
 
-        $stream = ssh2_exec($connection, 
-            'prlctl delete '.$this->option('id').' --force');
+        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl delete '.$this->option('id').' --force');
 
-        stream_set_blocking($stream, true);
-        $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
-        $result_err = stream_get_contents($stream_err);
+        // stream_set_blocking($stream, true);
+        // $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
+        // $result_err = stream_get_contents($stream_err);
         Container::where('name', $this->option('id'))->delete();
         $this->line('OK');
     }
