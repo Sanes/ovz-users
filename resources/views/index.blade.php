@@ -4,6 +4,12 @@
 @endsection
 @section('content')
 <h2 class="">Containers</h2>
+@if (Session::has('suspended'))
+<div class="uk-alert uk-alert-primary" uk-alert>
+    <a class="uk-alert-close" uk-close></a>
+    Suspended
+</div>
+@endif
 <div id="data">
 	<div class="uk-height-medium uk-flex uk-flex-middle uk-flex-center">
 		<span uk-spinner="ratio: 1.5"></span>

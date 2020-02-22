@@ -42,8 +42,8 @@
       <div class="">
         <a href="/ct/{{ $data['Name'] }}/edit" class="uk-icon-button uk-margin-small-right" uk-icon="settings" uk-tooltip="Настроить"></a>
         @if($data['State'] == 'running')
-        <a href="#restart" class="uk-icon-button uk-margin-small-right" uk-icon="refresh" uk-tooltip="Перезапустить" uk-toggle></a>
-        <a href="#stop" class="uk-icon-button uk-margin-small-right" uk-icon="close" uk-tooltip="Остановить" uk-toggle></a>
+        <a href="/ct/{{ $data['Name'] }}/state/restart" class="uk-icon-button uk-margin-small-right" uk-icon="refresh" uk-tooltip="Перезапустить" uk-toggle></a>
+        <a href="/ct/{{ $data['Name'] }}/state/stop" class="uk-icon-button uk-margin-small-right" uk-icon="close" uk-tooltip="Остановить" uk-toggle></a>
         @else
         <a href="/ct/{{ $data['Name'] }}/state/start" class="uk-icon-button uk-margin-small-right" uk-icon="play" uk-tooltip="Запустить"></a>      
         @endif

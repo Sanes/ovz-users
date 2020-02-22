@@ -79,14 +79,28 @@ class ContainerController extends Controller
      */
     public function show($id)
     {
+
+        $user = auth()->user()->id;
+        $db = Container::where('name', $id)->first();
+        if ($db->user_id != auth()->user()->id) {
+           echo "404";
+           exit();
+        }
+        elseif ($db->suspended === 1) {
+        	\Session::flash('suspended'); 
+        	return redirect('/ct');
+        }
+        else {
+
         return view('show', ['id' => $id]);
+        }
     }
     public function showData($id)
     {
 
         $user = auth()->user()->id;
-        $db = Container::where('name', $id)->firstOrFail();
-        if ($db->user_id != auth()->user()->id) {
+        $db = Container::where('name', $id)->first();
+        if ($db->user_id != auth()->user()->id || $db->suspended === 1) {
            echo "404";
            exit();
         }
@@ -125,7 +139,11 @@ class ContainerController extends Controller
         if ($db->user_id != auth()->user()->id) {
             return redirect('/ct');
         }
-
+        elseif ($db->suspended === 1) {
+        	\Session::flash('suspended'); 
+        	return redirect('/ct');
+        }
+        else {
 		$key = new RSA();
 		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
 		$ssh = new SSH2(config('ovz.ssh_ip'));
@@ -136,7 +154,9 @@ class ContainerController extends Controller
         $result = $ssh->exec('prlctl list -i '.$id.' -j');
         $responseData = json_decode($result, true);
 
-        return view('edit', ['data' => $responseData[0]]);
+        return view('edit', ['data' => $responseData[0]]);        	
+        }
+
         
     }
 
@@ -157,6 +177,10 @@ class ContainerController extends Controller
 		    exit('Login Failed');
 		}    
 
+        elseif ($db->suspended === 1) {
+        	\Session::flash('suspended'); 
+        	return redirect('/ct');
+        }
         if ($request['password']) {
             $passwduser = substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(32))), 0, 12);
             $result = $ssh->exec('prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname'].' --userpasswd root:'.$passwduser);
@@ -189,6 +213,10 @@ class ContainerController extends Controller
             return redirect('/ct');
         }     
 
+        elseif ($db->suspended === 1) {
+        	\Session::flash('suspended'); 
+        	return redirect('/ct');
+        }
 		$key = new RSA();
 		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
 		$ssh = new SSH2(config('ovz.ssh_ip'));
@@ -221,6 +249,10 @@ class ContainerController extends Controller
             return redirect('/ct');
         }
  
+        elseif ($db->suspended === 1) {
+        	\Session::flash('suspended'); 
+        	return redirect('/ct');
+        }
 		$key = new RSA();
 		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
 		$ssh = new SSH2(config('ovz.ssh_ip'));
