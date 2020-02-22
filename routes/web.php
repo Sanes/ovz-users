@@ -15,20 +15,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes(['register'=>true]);
+Auth::routes(['register'=>false]);
 
 
 
-	Route::get('ct/all', 'ContainerController@all');
 Route::prefix('ct')->middleware(['auth', 'throttle:60,1'])->group(function () {
 	Route::get('/', 'ContainerController@index');
 	Route::get('index-data', 'ContainerController@indexData');
 	Route::post('{id}/update', 'ContainerController@update');
-	Route::post('create', 'ContainerController@create');
 	Route::get('{id}/show', 'ContainerController@showData');
 	Route::get('{id}/edit', 'ContainerController@edit');
 	Route::get('{id}/rebuild', 'ContainerController@rebuild');
 	Route::get('{id}/state/{action}', 'ContainerController@state');
 	Route::get('{id}', 'ContainerController@show'); 
 });
-	Route::post('ct/create', 'ContainerController@create');
