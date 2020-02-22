@@ -167,8 +167,17 @@ class ContainerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
+        $user = auth()->user()->id;
+        $db = Container::where('name', $id)->firstOrFail();
+        if ($db->user_id != auth()->user()->id) {
+            return redirect('/ct');
+        }
+        elseif ($db->suspended === 1) {
+        	\Session::flash('suspended'); 
+        	return redirect('/ct');
+        }
 
 		$key = new RSA();
 		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));

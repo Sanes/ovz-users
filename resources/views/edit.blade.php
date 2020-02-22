@@ -4,7 +4,7 @@
 @endsection
 @section('content')
 <h2 class="">Edit Container</h2>
-<form action="/ct/update" method="post" class="uk-form-horizontal" id="update">
+<form action="/ct/{{ $data['Name'] }}/update" method="post" class="uk-form-horizontal" id="update">
     @csrf
     <input type="text" name="name" value="{{ $data['Name'] }}" hidden="">
 	<div class="uk-margin">
