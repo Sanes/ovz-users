@@ -8,6 +8,8 @@ use App\User;
 use App\Ip4address; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use phpseclib\Crypt\RSA;
+use phpseclib\Net\SSH2;
 
 
 class ContainerOpen extends Command
@@ -57,16 +59,15 @@ class ContainerOpen extends Command
                 Container::where('id', $id)->update(['name' => 'ct'.$id, 'user_id' => $userInfo->id, 'locked' => false]);
                 Ip4address::where('id', $getAddress->id)->update(['container_id' => $id]);
 
-                $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
-                ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
+                $key = new RSA();
+                $key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+                $ssh = new SSH2(config('ovz.ssh_ip'));
+                if (!$ssh->login('root', $key)) {
+                    exit('Login Failed');
+                }  
 
-                $stream = ssh2_exec($connection, 
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8" --description '.$this->option('hostname').'; prlctl start ct'.$id
-                    );
+                $stream = $ssh->exec('prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8" --description '.$this->option('hostname').'; prlctl start ct'.$id);
 
-                stream_set_blocking($stream, true);
-                $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDIO);
-                $result_err = stream_get_contents($stream_err);
                 $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).'/32 --hostname='.$this->option('hostname');
 
             } 
@@ -84,17 +85,15 @@ class ContainerOpen extends Command
                 Container::where('id', $id)->update(['name' => 'ct'.$id, 'user_id' => $userInfo->id, 'locked' => false]);
                 Ip4address::where('id', $getAddress->id)->update(['container_id' => $id]);
 
+                $key = new RSA();
+                $key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+                $ssh = new SSH2(config('ovz.ssh_ip'));
+                if (!$ssh->login('root', $key)) {
+                    exit('Login Failed');
+                }  
 
-                $connection = ssh2_connect(config('ovz.ssh_ip'), config('ovz.ssh_port'), array('hostkey'=>'ssh-rsa'));
-                ssh2_auth_pubkey_file($connection, config('ovz.ssh_user'), config('ovz.ssh_rsa_pub'), config('ovz.ssh_rsa'));
-                $stream = ssh2_exec($connection, 
-                    
-                    'prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8"; prlctl start ct'.$id
-                    );
+                $stream = $ssh->exec('prlctl create ct'.$id.' --vmtype ct --ostemplate '.$this->option('ostemplate').';sleep 2;prlctl set ct'.$id.' --hostname '.$this->option('hostname').' --cpus '.$this->option('cpus').' --memsize '.$this->option('memsize').'G --ipadd '.$getAddress->address.';prlctl set ct'.$id.' --size='.$this->option('size').'G --nameserver "1.1.1.1 8.8.8.8"; prlctl start ct'.$id);
 
-                stream_set_blocking($stream, true);
-                $stream_err = ssh2_fetch_stream($stream, SSH2_STREAM_STDERR);
-                $result_err = stream_get_contents($stream_err);
                 $this->line('OK --id=ct'.$id.' --ctname=ct'.$id.' --memsize='.$this->option('memsize').' --size='.$this->option('size').' --cpus='.$this->option('cpus').' --ipadd='.$getAddress->address).'/32 --hostname='.$this->option('hostname');
 
                 }

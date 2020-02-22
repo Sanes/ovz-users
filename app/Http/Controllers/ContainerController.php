@@ -6,6 +6,9 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+use phpseclib\Crypt\RSA;
+use phpseclib\Net\SSH2;
+
 class ContainerController extends Controller
 {
 
@@ -28,7 +31,17 @@ class ContainerController extends Controller
         $db = User::find($user)->containers->toArray();
         $collection = collect($db);
         $pluck = $collection->pluck('name');
-        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl list -a -o status,name,hostname,ip_configured,description -j');
+
+
+		$key = new RSA();
+		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+		$ssh = new SSH2(config('ovz.ssh_ip'));
+		if (!$ssh->login('root', $key)) {
+		    exit('Login Failed');
+		}
+
+        $result = $ssh->exec('prlctl list -a -o status,name,hostname,ip_configured,description -j');
+
         $response = json_decode($result, true);
         $col = collect($response);
         $filtered = $col->whereIn('name', $pluck);
@@ -79,9 +92,16 @@ class ContainerController extends Controller
         }
         else {
 
-        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl list -i '.$id.' -j');    
+		$key = new RSA();
+		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+		$ssh = new SSH2(config('ovz.ssh_ip'));
+		if (!$ssh->login('root', $key)) {
+		    exit('Login Failed');
+		}
+
+        $result = $ssh->exec('prlctl list -i '.$id.' -j');    
         $responseData = json_decode($result, true);
-        $resultStat = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl exec '.$id.' /usr/local/bin/monit'); 
+        $resultStat = $ssh->exec('prlctl exec '.$id.' /usr/local/bin/monit'); 
         $responseStat = json_decode($resultStat, true);
 
         return view('show-data', ['data' => $responseData[0], 'stat' => $responseStat]);
@@ -105,8 +125,15 @@ class ContainerController extends Controller
         if ($db->user_id != auth()->user()->id) {
             return redirect('/ct');
         }
-               
-        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl list -i '.$id.' -j');
+
+		$key = new RSA();
+		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+		$ssh = new SSH2(config('ovz.ssh_ip'));
+		if (!$ssh->login('root', $key)) {
+		    exit('Login Failed');
+		}      
+
+        $result = $ssh->exec('prlctl list -i '.$id.' -j');
         $responseData = json_decode($result, true);
 
         return view('edit', ['data' => $responseData[0]]);
@@ -122,13 +149,21 @@ class ContainerController extends Controller
      */
     public function update(Request $request)
     {
+
+		$key = new RSA();
+		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+		$ssh = new SSH2(config('ovz.ssh_ip'));
+		if (!$ssh->login('root', $key)) {
+		    exit('Login Failed');
+		}    
+
         if ($request['password']) {
             $passwduser = substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(32))), 0, 12);
-            $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname'].' --userpasswd root:'.$passwduser);
+            $result = $ssh->exec('prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname'].' --userpasswd root:'.$passwduser);
             \Session::flash('pwgen', $passwduser);            
         } 
         else {
-            $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
+            $result = $ssh->exec('prlctl set '.$request['name'].' --description "'.$request['description'].'" --hostname '.$request['hostname']);
         }
 
         return redirect('/ct/'.$request['name']);
@@ -152,17 +187,25 @@ class ContainerController extends Controller
         $db = Container::where('name', $id)->first();
         if ($db->user_id != auth()->user()->id) {
             return redirect('/ct');
-        }        
-        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl '.$action.' '.$id.' > /dev/null &');
-        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl reset-uptime '.$id);
+        }     
+
+		$key = new RSA();
+		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+		$ssh = new SSH2(config('ovz.ssh_ip'));
+		if (!$ssh->login('root', $key)) {
+		    exit('Login Failed');
+		}    
+  
+        $result = $ssh->exec('prlctl '.$action.' '.$id.' > /dev/null &');
+        $result = $ssh->exec('prlctl reset-uptime '.$id);
         if ($action == "start") {
-            $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl set '.$id.' --autostart on');
+            $result = $ssh->exec('prlctl set '.$id.' --autostart on');
         }
         elseif ($action == "stop") {
-            $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl set '.$id.' --autostart off');
+            $result = $ssh->exec('prlctl set '.$id.' --autostart off');
         }
         else {
-            $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl set '.$id);
+            $result = $ssh->exec('prlctl set '.$id);
         }
 
         return redirect('/ct/'.$id);
@@ -177,8 +220,14 @@ class ContainerController extends Controller
         if ($db->user_id != auth()->user()->id) {
             return redirect('/ct');
         }
-                
-        $result = shell_exec('ssh -i '.config('ovz.ssh_rsa').' root@'.config('ovz.ssh_ip').' prlctl list -i '.$id.' -j');
+ 
+		$key = new RSA();
+		$key->loadKey(file_get_contents(config('ovz.ssh_rsa')));
+		$ssh = new SSH2(config('ovz.ssh_ip'));
+		if (!$ssh->login('root', $key)) {
+		    exit('Login Failed');
+		}                   
+        $result = $ssh->exec('prlctl list -i '.$id.' -j');
         $responseData = json_decode($result, true);
 
         return view('rebuild', ['data' => $responseData[0]]);
